@@ -1,0 +1,1180 @@
+/* ==========================================================================
+   Vue.js / VitePress Theme for MkDocs Material
+   Identical Layout & Typography Scale to https://vuejs.org/guide/introduction.html
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Theme Custom Properties (VitePress Design System)
+   -------------------------------------------------------------------------- */
+:root,
+[data-md-color-scheme="default"] {
+  /* Typography fonts */
+  --vp-font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Brand colors (Vue emerald green) */
+  --vp-c-brand-1: #42b883;
+  --vp-c-brand-2: #33a06f;
+  --vp-c-brand-3: #277954;
+  --vp-c-brand-soft: rgba(66, 184, 131, 0.14);
+  --vp-c-brand-softer: rgba(66, 184, 131, 0.08);
+
+  /* Backgrounds */
+  --vp-c-bg: #ffffff;
+  --vp-c-bg-alt: #f6f6f7;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #f6f6f7;
+
+  /* Text hierarchy */
+  --vp-c-text-1: #213547;
+  --vp-c-text-2: #476582;
+  --vp-c-text-3: #8e9aaf;
+
+  /* Borders & Dividers */
+  --vp-c-border: rgba(60, 60, 67, 0.12);
+  --vp-c-divider: rgba(60, 60, 67, 0.12);
+  --vp-c-gutter: rgba(60, 60, 67, 0.06);
+
+  /* Code elements */
+  --vp-code-block-bg: #f6f8fa;
+  --vp-code-inline-bg: rgba(27, 31, 35, 0.05);
+  --vp-code-inline-fg: #476582;
+
+  /* Callouts */
+  --vp-c-tip: #42b883;
+  --vp-c-tip-bg: rgba(66, 184, 131, 0.1);
+  --vp-c-note: #3b82f6;
+  --vp-c-note-bg: rgba(59, 130, 246, 0.08);
+  --vp-c-warning: #eab308;
+  --vp-c-warning-bg: rgba(234, 179, 8, 0.12);
+  --vp-c-warning-title: #ca8a04;
+  --vp-c-danger: #ef4444;
+  --vp-c-danger-bg: rgba(239, 68, 68, 0.1);
+
+  /* Layout dimensions */
+  --vp-layout-max-width: 90rem;      /* 1440px */
+  --vp-nav-height: 4rem;             /* 64px */
+  --vp-sidebar-width: 17rem;         /* 272px */
+  --vp-aside-width: 14rem;           /* 224px */
+  --vp-content-max-width: 43rem;     /* 688px - VitePress document reading measure */
+
+  /* MkDocs Material Variable Overrides */
+  --md-primary-fg-color: #ffffff;
+  --md-primary-fg-color--light: #ffffff;
+  --md-primary-fg-color--dark: #f6f6f7;
+  --md-primary-bg-color: #213547;
+  --md-primary-bg-color--light: #476582;
+  --md-accent-fg-color: #42b883;
+  --md-accent-fg-color--transparent: rgba(66, 184, 131, 0.1);
+  
+  --md-default-fg-color: #213547;
+  --md-default-fg-color--light: #476582;
+  --md-default-fg-color--lighter: #8e9aaf;
+  --md-default-fg-color--lightest: rgba(60, 60, 67, 0.12);
+
+  --md-default-bg-color: #ffffff;
+  --md-default-bg-color--light: #f6f6f7;
+  --md-default-bg-color--lighter: #f6f6f7;
+  --md-default-bg-color--lightest: #ffffff;
+
+  --md-typeset-a-color: #42b883;
+  --md-typeset-kbd-color: #476582;
+  --md-typeset-kbd-bg-color: #f6f6f7;
+  --md-typeset-kbd-border-color: rgba(60, 60, 67, 0.18);
+
+  --md-code-fg-color: #213547;
+  --md-code-bg-color: #f6f8fa;
+  --md-code-hl-color: rgba(66, 184, 131, 0.15);
+}
+
+/* Dark Mode Theme */
+[data-md-color-scheme="slate"] {
+  --vp-c-brand-1: #42b883;
+  --vp-c-brand-2: #42d392;
+  --vp-c-brand-3: #33a06f;
+  --vp-c-brand-soft: rgba(66, 184, 131, 0.16);
+  --vp-c-brand-softer: rgba(66, 184, 131, 0.1);
+
+  --vp-c-bg: #1a1a1a;
+  --vp-c-bg-alt: #161618;
+  --vp-c-bg-elv: #202127;
+  --vp-c-bg-soft: #202127;
+
+  --vp-c-text-1: rgba(255, 255, 255, 0.87);
+  --vp-c-text-2: rgba(235, 235, 245, 0.6);
+  --vp-c-text-3: rgba(235, 235, 245, 0.38);
+
+  --vp-c-border: rgba(84, 84, 88, 0.48);
+  --vp-c-divider: rgba(84, 84, 88, 0.48);
+  --vp-c-gutter: rgba(84, 84, 88, 0.24);
+
+  --vp-code-block-bg: #161618;
+  --vp-code-inline-bg: rgba(255, 255, 255, 0.08);
+  --vp-code-inline-fg: #e2e8f0;
+
+  --vp-c-tip: #42d392;
+  --vp-c-tip-bg: rgba(66, 184, 131, 0.15);
+  --vp-c-note: #60a5fa;
+  --vp-c-note-bg: rgba(96, 165, 250, 0.12);
+  --vp-c-warning: #facc15;
+  --vp-c-warning-bg: rgba(250, 204, 21, 0.14);
+  --vp-c-warning-title: #fde047;
+  --vp-c-danger: #f87171;
+  --vp-c-danger-bg: rgba(248, 113, 113, 0.14);
+
+  --md-primary-fg-color: #1a1a1a;
+  --md-primary-fg-color--light: #202127;
+  --md-primary-fg-color--dark: #161618;
+  --md-primary-bg-color: rgba(255, 255, 255, 0.87);
+  --md-primary-bg-color--light: rgba(235, 235, 245, 0.6);
+
+  --md-accent-fg-color: #42b883;
+  --md-accent-fg-color--transparent: rgba(66, 184, 131, 0.15);
+
+  --md-default-fg-color: rgba(255, 255, 255, 0.87);
+  --md-default-fg-color--light: rgba(235, 235, 245, 0.6);
+  --md-default-fg-color--lighter: rgba(235, 235, 245, 0.38);
+  --md-default-fg-color--lightest: rgba(84, 84, 88, 0.48);
+
+  --md-default-bg-color: #1a1a1a;
+  --md-default-bg-color--light: #161618;
+  --md-default-bg-color--lighter: #202127;
+  --md-default-bg-color--lightest: #202127;
+
+  --md-typeset-a-color: #42d392;
+  --md-typeset-kbd-color: rgba(255, 255, 255, 0.87);
+  --md-typeset-kbd-bg-color: #202127;
+  --md-typeset-kbd-border-color: rgba(84, 84, 88, 0.48);
+
+  --md-code-fg-color: rgba(255, 255, 255, 0.87);
+  --md-code-bg-color: #161618;
+  --md-code-hl-color: rgba(66, 184, 131, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   2. Global Layout & Grid Constraints
+   -------------------------------------------------------------------------- */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--vp-font-family-base) !important;
+  color: var(--vp-c-text-1) !important;
+  background-color: var(--vp-c-bg) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override default Material container to match VitePress 1440px layout */
+.md-grid {
+  max-width: var(--vp-layout-max-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.md-main__inner {
+  display: flex !important;
+  max-width: var(--vp-layout-max-width) !important;
+  margin: 0 auto !important;
+  position: relative !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Top Announcement Banner (Hidden as requested)
+   -------------------------------------------------------------------------- */
+.md-banner {
+  display: none !important;
+}
+
+.vue-banner {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Header / Navbar
+   -------------------------------------------------------------------------- */
+.md-header {
+  background-color: var(--vp-c-bg) !important;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+  box-shadow: none !important;
+  color: var(--vp-c-text-1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+.md-header__inner {
+  display: flex !important;
+  align-items: center !important;
+  height: var(--vp-nav-height) !important;
+  padding: 0 1.5rem !important;
+  max-width: var(--vp-layout-max-width) !important;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 1.875rem !important;
+  height: 1.875rem !important;
+  border-radius: 6px !important;
+}
+
+.md-header__title {
+  color: var(--vp-c-text-1) !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important; /* 16px */
+  letter-spacing: -0.015em !important;
+  flex: none !important;
+  margin-right: 1.5rem !important;
+}
+
+.vue-brand-link {
+  color: var(--vp-c-text-1) !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  letter-spacing: -0.015em !important;
+}
+
+.vue-brand-link:hover {
+  color: var(--vp-c-brand-1) !important;
+}
+
+.md-header__topic {
+  color: var(--vp-c-text-1) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+}
+
+.md-header__topic + .md-header__topic {
+  display: none !important;
+}
+
+.md-header__button {
+  color: var(--vp-c-text-2) !important;
+  transition: color 0.2s ease, opacity 0.2s ease !important;
+}
+
+.md-header__button:hover {
+  color: var(--vp-c-brand-1) !important;
+  opacity: 1 !important;
+}
+
+/* Search bar VitePress styling */
+.md-search {
+  position: relative !important;
+}
+
+.md-search__inner {
+  margin-right: 0.5rem;
+}
+
+.md-search__input {
+  background-color: var(--vp-c-bg-alt) !important;
+  color: var(--vp-c-text-1) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 8px !important;
+  font-size: 0.8125rem !important; /* 13px */
+  padding-left: 2.2rem !important;
+  width: 13rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.md-search__input::placeholder {
+  color: var(--vp-c-text-3) !important;
+}
+
+.md-search__input:focus {
+  background-color: var(--vp-c-bg) !important;
+  border-color: var(--vp-c-brand-1) !important;
+  box-shadow: 0 0 0 2px var(--vp-c-brand-soft) !important;
+  width: 16rem !important;
+}
+
+.md-search__icon {
+  color: var(--vp-c-text-3) !important;
+}
+
+.md-search-result {
+  background-color: var(--vp-c-bg) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.md-search-result__meta {
+  color: var(--vp-c-text-2) !important;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+  font-size: 0.8125rem !important;
+}
+
+.md-search-result__item:hover {
+  background-color: var(--vp-c-brand-softer) !important;
+}
+
+.md-search-result__item mark {
+  background-color: var(--vp-c-brand-soft) !important;
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600 !important;
+}
+
+/* Vue.js Navbar Menu in Header */
+.vue-nav-menu {
+  display: flex !important;
+  align-items: center !important;
+  margin-left: auto !important;
+}
+
+.vue-nav-menu__list {
+  display: flex !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0.25rem !important;
+  align-items: center !important;
+}
+
+.vue-nav-menu__list .md-tabs__item {
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.vue-nav-menu__list .md-tabs__link {
+  font-size: 0.875rem !important; /* 14px */
+  font-weight: 500 !important;
+  color: var(--vp-c-text-1) !important;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  line-height: 1.4 !important;
+  opacity: 1 !important;
+  background-color: transparent !important;
+  transition: color 0.15s ease !important;
+}
+
+.vue-nav-menu__list .md-tabs__link:hover {
+  color: var(--vp-c-brand-1) !important;
+  background-color: transparent !important;
+}
+
+.vue-nav-menu__list .md-tabs__item--active .md-tabs__link {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600 !important;
+  background-color: transparent !important;
+}
+
+/* Theme palette toggle: VitePress Appearance Toggle Switch */
+.md-header__option {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 0.5rem !important;
+}
+
+.md-header__option[data-md-component="palette"] {
+  width: 40px !important;
+  height: 22px !important;
+  border-radius: 11px !important;
+  border: 1px solid var(--vp-c-border) !important;
+  background-color: var(--vp-c-bg-alt) !important;
+  position: relative !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  flex: none !important;
+  transition: border-color 0.25s, background-color 0.25s !important;
+}
+
+.md-header__option[data-md-component="palette"]:hover {
+  border-color: var(--vp-c-brand-1) !important;
+}
+
+.md-header__option .md-header__button {
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 1px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+/* Light mode state: switch to dark button sits on left with sun */
+.md-header__option .md-header__button[for="__palette_1"] {
+  left: 2px !important;
+  background-color: #ffffff !important;
+  color: #f59e0b !important;
+}
+
+/* Dark mode state: switch to light button sits on right with moon */
+[data-md-color-scheme="slate"] .md-header__option[data-md-component="palette"] {
+  background-color: #2f2f32 !important;
+  border-color: rgba(84, 84, 88, 0.48) !important;
+}
+
+[data-md-color-scheme="slate"] .md-header__option .md-header__button[for="__palette_0"] {
+  left: 18px !important;
+  background-color: #141416 !important;
+  color: #cbd5e1 !important;
+}
+
+.md-header__option .md-header__button svg {
+  width: 12px !important;
+  height: 12px !important;
+  fill: currentColor !important;
+}
+
+/* GitHub source link: placed at the very end, NO separator, sleek icon button */
+.md-header__source {
+  display: flex !important;
+  align-items: center !important;
+  margin-left: 0.25rem !important;
+  padding-left: 0 !important;
+  border-left: none !important; /* Bỏ hoàn toàn phần ngăn cách */
+}
+
+.md-source {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--vp-c-text-2) !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  transition: color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.md-source__repository {
+  display: none !important; /* Chỉ hiển thị icon GitHub tinh gọn như Vue.js */
+}
+
+.md-source:hover {
+  color: var(--vp-c-brand-1) !important;
+  background-color: var(--vp-c-brand-softer) !important;
+}
+
+.md-source__icon svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  fill: currentColor !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Sub-tabs bar removed (as tabs are now in header)
+   -------------------------------------------------------------------------- */
+.md-tabs {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. 3-Column Layout: Left Sidebar, Content, and Right Aside
+   -------------------------------------------------------------------------- */
+
+/* Left Sidebar: exactly VitePress --vp-sidebar-width (272px / 17rem) */
+.md-sidebar--primary {
+  width: var(--vp-sidebar-width) !important;
+  flex-shrink: 0 !important;
+  border-right: 1px solid var(--vp-c-border) !important;
+}
+
+.md-sidebar--primary .md-sidebar__scrollwrap {
+  background-color: var(--vp-c-bg) !important;
+}
+
+/* Section Group Headers (GETTING STARTED, FUNDAMENTALS, etc.):
+   Pure uppercase text labels, NEVER highlighted, NEVER active, NO background */
+.md-sidebar--primary .md-nav__item--nested > .md-nav__link,
+.md-sidebar--primary .md-nav__item--nested > label.md-nav__link,
+.md-sidebar--primary .md-nav__item--section > .md-nav__link,
+.md-sidebar--primary .md-nav__item--active > label.md-nav__link,
+.md-sidebar--primary .md-nav__item--active.md-nav__item--nested > .md-nav__link,
+.md-sidebar--primary .md-nav__item--nested > .md-nav__link:hover,
+.md-sidebar--primary .md-nav__item--nested > label.md-nav__link:hover {
+  font-size: 0.75rem !important; /* 12px */
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--vp-c-text-2) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  padding: 0.85rem 0.75rem 0.35rem !important;
+  line-height: 1.3 !important;
+}
+
+/* Hide collapsible chevron icons on group headers since sections are expanded */
+.md-sidebar--primary .md-nav__item--nested > label.md-nav__link .md-nav__icon,
+.md-sidebar--primary .md-nav__item--nested > .md-nav__link .md-nav__icon {
+  display: none !important;
+}
+
+/* Standard leaf page navigation link */
+.md-sidebar--primary a.md-nav__link {
+  font-size: 0.875rem !important; /* 14px */
+  font-weight: 400 !important;
+  line-height: 1.45 !important;
+  color: var(--vp-c-text-2) !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 6px !important;
+  margin: 1px 0 !important;
+  background-color: transparent !important;
+  transition: all 0.15s ease !important;
+}
+
+.md-sidebar--primary a.md-nav__link:hover {
+  color: var(--vp-c-brand-1) !important;
+  background-color: var(--vp-c-brand-softer) !important;
+}
+
+/* ONLY the leaf article link currently being viewed gets the active highlight */
+.md-sidebar--primary a.md-nav__link.md-nav__link--active {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600 !important;
+  background-color: var(--vp-c-brand-soft) !important;
+}
+
+.md-sidebar--primary .md-nav__list {
+  padding-left: 0.5rem !important;
+}
+
+/* Right Sidebar / Aside: Outline "ON THIS PAGE" (224px / 14rem) */
+.md-sidebar--secondary {
+  width: var(--vp-aside-width) !important;
+  flex-shrink: 0 !important;
+  border-left: 1px solid var(--vp-c-border) !important;
+}
+
+.md-sidebar--secondary .md-nav__title {
+  font-size: 0.6875rem !important; /* 11px */
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--vp-c-text-3) !important;
+  padding: 0 !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.md-sidebar--secondary .md-nav__link {
+  font-size: 0.8125rem !important; /* 13px */
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  color: var(--vp-c-text-2) !important;
+  padding: 0.25rem 0 0.25rem 0.75rem !important;
+  border-left: 2px solid transparent !important;
+  transition: all 0.15s ease !important;
+}
+
+.md-sidebar--secondary .md-nav__link:hover {
+  color: var(--vp-c-brand-1) !important;
+}
+
+.md-sidebar--secondary .md-nav__link--active {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 500 !important;
+  border-left-color: var(--vp-c-brand-1) !important;
+}
+
+/* Center Content Column: Perfectly centered with VitePress reading width */
+.md-content {
+  flex-grow: 1 !important;
+  min-width: 0 !important;
+}
+
+.md-content__inner {
+  max-width: var(--vp-content-max-width) !important; /* 688px (43rem) */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 2.25rem 2rem 5rem !important;
+}
+
+/* Fullpage mode for Home, Blog, About (non-Docs pages without sidebars) */
+.md-sidebar[hidden] {
+  display: none !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.md-sidebar--primary[hidden] ~ .md-content,
+.md-sidebar--secondary[hidden] ~ .md-content,
+.md-content--fullpage {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.md-sidebar--primary[hidden] ~ .md-content .md-content__inner,
+.md-sidebar--secondary[hidden] ~ .md-content .md-content__inner,
+.md-content--fullpage .md-content__inner {
+  max-width: 56rem !important; /* 896px standard comfortable page width */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 2.5rem 1.5rem 5rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. Typography Proportions (VitePress Exact Scale)
+   -------------------------------------------------------------------------- */
+.md-typeset {
+  font-family: var(--vp-font-family-base) !important;
+  font-size: 1rem !important; /* 16px */
+  line-height: 1.7 !important; /* 27.2px */
+  color: var(--vp-c-text-1) !important;
+}
+
+/* H1: 38px / line-height 48px / letter-spacing -0.025em */
+.md-typeset h1 {
+  font-size: 2.375rem !important; /* 38px */
+  font-weight: 700 !important;
+  line-height: 1.25 !important; /* 47.5px */
+  letter-spacing: -0.025em !important;
+  color: var(--vp-c-text-1) !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* H2: 24px / line-height 32px / letter-spacing -0.02em / divider top */
+.md-typeset h2 {
+  font-size: 1.5rem !important; /* 24px */
+  font-weight: 600 !important;
+  line-height: 1.33 !important; /* 32px */
+  letter-spacing: -0.02em !important;
+  color: var(--vp-c-text-1) !important;
+  border-top: 1px solid var(--vp-c-divider) !important;
+  padding-top: 1.5rem !important;
+  margin-top: 3rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* H3: 19px / line-height 28px / letter-spacing -0.015em */
+.md-typeset h3 {
+  font-size: 1.1875rem !important; /* 19px */
+  font-weight: 600 !important;
+  line-height: 1.47 !important; /* 28px */
+  letter-spacing: -0.015em !important;
+  color: var(--vp-c-text-1) !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* H4: 16px / line-height 24px */
+.md-typeset h4 {
+  font-size: 1rem !important; /* 16px */
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  color: var(--vp-c-text-1) !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Paragraphs & Text */
+.md-typeset p {
+  font-size: 1rem !important; /* 16px */
+  line-height: 1.7 !important;
+  color: var(--vp-c-text-1) !important;
+  margin: 1rem 0 !important;
+}
+
+.md-typeset strong {
+  font-weight: 600 !important;
+  color: var(--vp-c-text-1) !important;
+}
+
+/* Links */
+.md-typeset a {
+  font-weight: 500 !important;
+  color: var(--vp-c-brand-1) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+  text-decoration-color: rgba(66, 184, 131, 0.4) !important;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease !important;
+}
+
+.md-typeset a:hover {
+  color: var(--vp-c-brand-2) !important;
+  text-decoration-color: var(--vp-c-brand-1) !important;
+}
+
+/* Lists */
+.md-typeset ul,
+.md-typeset ol {
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  padding-left: 1.25rem !important;
+  margin: 1rem 0 !important;
+  color: var(--vp-c-text-1) !important;
+}
+
+.md-typeset li {
+  margin: 0.35rem 0 !important;
+}
+
+.md-typeset hr {
+  border-bottom: 1px solid var(--vp-c-divider) !important;
+  margin: 2.5rem 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. Inline Code and Code Blocks
+   -------------------------------------------------------------------------- */
+.md-typeset code {
+  font-family: var(--vp-font-family-mono) !important;
+  font-size: 0.875em !important; /* 14px */
+  font-weight: 400 !important;
+  background-color: var(--vp-code-inline-bg) !important;
+  color: var(--vp-code-inline-fg) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--vp-c-border) !important;
+  box-shadow: none !important;
+}
+
+.md-typeset pre {
+  font-family: var(--vp-font-family-mono) !important;
+  background-color: var(--vp-code-block-bg) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  padding: 1rem 1.25rem !important;
+  line-height: 1.6 !important;
+  margin: 1.25rem 0 !important;
+}
+
+.md-typeset pre > code {
+  font-size: 0.875rem !important; /* 14px */
+  line-height: 1.6 !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.md-clipboard {
+  color: var(--vp-c-text-3) !important;
+  transition: color 0.15s ease !important;
+}
+
+.md-clipboard:hover {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. Admonition Callouts (VitePress Containers)
+   -------------------------------------------------------------------------- */
+.md-typeset .admonition {
+  border: none !important;
+  border-left: 4px solid var(--vp-c-brand-1) !important;
+  border-radius: 8px !important;
+  background-color: var(--vp-c-bg-alt) !important;
+  padding: 1rem 1.25rem !important;
+  margin: 1.5rem 0 !important;
+  box-shadow: none !important;
+}
+
+.md-typeset .admonition-title {
+  font-size: 0.8125rem !important; /* 13px */
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0 !important;
+  margin-bottom: 0.45rem !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.md-typeset .admonition-title::before {
+  display: none !important;
+}
+
+.md-typeset .admonition p:last-child {
+  margin-bottom: 0 !important;
+  font-size: 0.9375rem !important; /* 15px */
+  line-height: 1.65 !important;
+}
+
+/* Tip */
+.md-typeset .admonition.tip {
+  background-color: var(--vp-c-tip-bg) !important;
+  border-left-color: var(--vp-c-tip) !important;
+}
+.md-typeset .admonition.tip > .admonition-title {
+  color: var(--vp-c-tip) !important;
+}
+
+/* Note / Info */
+.md-typeset .admonition.note,
+.md-typeset .admonition.info {
+  background-color: var(--vp-c-note-bg) !important;
+  border-left-color: var(--vp-c-note) !important;
+}
+.md-typeset .admonition.note > .admonition-title,
+.md-typeset .admonition.info > .admonition-title {
+  color: var(--vp-c-note) !important;
+}
+
+/* Warning */
+.md-typeset .admonition.warning {
+  background-color: var(--vp-c-warning-bg) !important;
+  border-left-color: var(--vp-c-warning) !important;
+}
+.md-typeset .admonition.warning > .admonition-title {
+  color: var(--vp-c-warning-title) !important;
+}
+
+/* Danger / Failure */
+.md-typeset .admonition.danger,
+.md-typeset .admonition.failure {
+  background-color: var(--vp-c-danger-bg) !important;
+  border-left-color: var(--vp-c-danger) !important;
+}
+.md-typeset .admonition.danger > .admonition-title,
+.md-typeset .admonition.failure > .admonition-title {
+  color: var(--vp-c-danger) !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Tables
+   -------------------------------------------------------------------------- */
+.md-typeset table:not([class]) {
+  width: 100% !important;
+  font-size: 0.875rem !important; /* 14px */
+  border-collapse: collapse !important;
+  margin: 1.5rem 0 !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  display: table !important;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--vp-c-bg-alt) !important;
+  color: var(--vp-c-text-1) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 0.65rem 0.9rem !important;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+  text-align: left !important;
+}
+
+.md-typeset table:not([class]) td {
+  padding: 0.65rem 0.9rem !important;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+  color: var(--vp-c-text-1) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.55 !important;
+}
+
+.md-typeset table:not([class]) tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. VitePress Home Hero & Feature Cards
+   -------------------------------------------------------------------------- */
+.vue-hero {
+  text-align: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.vue-hero__tagline {
+  font-size: 1.25rem !important; /* 20px */
+  color: var(--vp-c-text-2) !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 1.75rem !important;
+  line-height: 1.6 !important;
+}
+
+.vue-hero__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.vue-gradient-text {
+  background: -webkit-linear-gradient(315deg, #42d392 25%, #647eff) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 800 !important;
+}
+
+.md-typeset .md-button {
+  font-size: 0.875rem !important; /* 14px */
+  font-weight: 500 !important;
+  padding: 0.55rem 1.25rem !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--vp-c-border) !important;
+  background-color: var(--vp-c-bg-alt) !important;
+  color: var(--vp-c-text-1) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.md-typeset .md-button:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  color: var(--vp-c-brand-1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.md-typeset .md-button--primary {
+  background-color: var(--vp-c-brand-1) !important;
+  border-color: var(--vp-c-brand-1) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: var(--vp-c-brand-2) !important;
+  border-color: var(--vp-c-brand-2) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px var(--vp-c-brand-soft) !important;
+}
+
+.md-typeset .grid.cards > ul,
+.md-typeset .grid.cards > ol {
+  gap: 1rem !important;
+}
+
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid.cards > ol > li {
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 12px !important;
+  background-color: var(--vp-c-bg-alt) !important;
+  padding: 1.5rem !important;
+  box-shadow: none !important;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s !important;
+}
+
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid.cards > ol > li:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px var(--vp-c-brand-soft) !important;
+}
+
+.md-typeset .grid.cards .twemoji {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. VitePress Document Footer (Next / Prev Pagination inside Content)
+   -------------------------------------------------------------------------- */
+.md-footer {
+  display: none !important;
+}
+
+.vp-doc-footer {
+  display: flex !important;
+  gap: 1rem !important;
+  margin-top: 3.5rem !important;
+  padding-top: 1.5rem !important;
+  border-top: 1px solid var(--vp-c-divider) !important;
+}
+
+.vp-doc-footer__prev,
+.vp-doc-footer__next {
+  flex: 1 1 0 !important;
+  display: flex !important;
+}
+
+.vp-doc-footer__next {
+  justify-content: flex-end !important;
+}
+
+.vp-pager-link {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 8px !important;
+  padding: 0.85rem 1.25rem !important;
+  text-decoration: none !important;
+  background-color: var(--vp-c-bg) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+.vp-pager-link:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  background-color: var(--vp-c-brand-softer) !important;
+  box-shadow: 0 4px 14px var(--vp-c-brand-soft) !important;
+  text-decoration: none !important;
+}
+
+.vp-pager-link--prev {
+  text-align: left !important;
+}
+
+.vp-pager-link--next {
+  text-align: right !important;
+}
+
+.vp-pager-link__desc {
+  font-size: 0.72rem !important; /* 11.5px */
+  font-weight: 600 !important;
+  color: var(--vp-c-text-3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.3 !important;
+  margin-bottom: 0.25rem !important;
+  display: block !important;
+}
+
+.vp-pager-link__title {
+  font-size: 0.9375rem !important; /* 15px */
+  font-weight: 600 !important;
+  color: var(--vp-c-brand-1) !important;
+  line-height: 1.4 !important;
+  display: block !important;
+}
+
+.vp-pager-link:hover .vp-pager-link__title {
+  color: var(--vp-c-brand-2) !important;
+}
+
+/* Back to top button */
+.md-top {
+  background-color: var(--vp-c-bg-alt) !important;
+  color: var(--vp-c-text-2) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.md-top:hover {
+  background-color: var(--vp-c-brand-1) !important;
+  border-color: var(--vp-c-brand-1) !important;
+  color: #ffffff !important;
+}
+
+.md-top svg {
+  fill: currentColor !important;
+}
+
+/* Mermaid Diagrams */
+.mermaid {
+  background-color: var(--vp-c-bg-alt) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 10px !important;
+  padding: 1.5rem !important;
+  margin: 1.5rem 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Minimalist Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vp-c-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vp-c-text-3);
+}
+
+/* --------------------------------------------------------------------------
+   13. Responsive Media Queries (Identical Breakpoints to VitePress)
+   -------------------------------------------------------------------------- */
+/* Large screens (>= 1220px / 76.25em): Full 3-Column layout */
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary {
+    width: var(--vp-sidebar-width) !important;
+    display: block !important;
+  }
+  .md-sidebar--secondary {
+    width: var(--vp-aside-width) !important;
+    display: block !important;
+  }
+  .md-content {
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+  }
+  .md-content__inner {
+    max-width: var(--vp-content-max-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Tablet / Medium screens (960px to 1219px): Left sidebar + Centered content */
+@media screen and (min-width: 60em) and (max-width: 76.24em) {
+  .md-sidebar--primary {
+    width: var(--vp-sidebar-width) !important;
+    display: block !important;
+  }
+  .md-sidebar--secondary {
+    display: none !important;
+  }
+  .md-content {
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+  }
+  .md-content__inner {
+    max-width: var(--vp-content-max-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Mobile screens (< 960px / 59.99em): Single fluid column */
+@media screen and (max-width: 59.99em) {
+  .vue-nav-menu {
+    display: none !important;
+  }
+  .md-header__source {
+    border-left: none !important;
+    margin-left: 0.25rem !important;
+    padding-left: 0 !important;
+  }
+  .vp-doc-footer {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  .md-sidebar--primary {
+    display: none;
+  }
+  .md-sidebar--secondary {
+    display: none !important;
+  }
+  .md-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .md-content__inner {
+    max-width: 100% !important;
+    padding: 1.5rem 1rem 3rem !important;
+    margin: 0 !important;
+  }
+  .md-typeset h1 {
+    font-size: 1.875rem !important; /* 30px on mobile */
+  }
+  .md-typeset h2 {
+    font-size: 1.35rem !important;
+  }
+}
