@@ -1,0 +1,7 @@
+# Cấu hình môi trường PRODUCTION (Deploy GitHub Pages - Ẩn hoàn toàn trang Quản trị Admin)
+INHERIT: mkdocs.yml
+
+site_url: https://deploy-website.github.io/postgresql-knowledge-hub/
+
+exclude_docs: |
+  admin.md

@@ -2,24 +2,34 @@
 
 Website tài liệu PostgreSQL **độc lập**, giao diện tối giản lấy cảm hứng từ Vue.js Guide; gồm menu bên trái, mục lục bên phải, tìm kiếm và light/dark mode.
 
-## Chạy local
+## Chạy local (Môi trường Dev - có trang Quản trị)
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-mkdocs serve
+
+# Khởi động đồng thời Web tài liệu (Port 8000) & Web Admin (Port 8001)
+python dev.py
+
+# Hoặc chạy riêng MkDocs Dev
+mkdocs serve -f mkdocs.dev.yml
 ```
 
-Mở: http://127.0.0.1:8000/
+Mở: http://127.0.0.1:8000/ (tab **Quản trị** chỉ hiển thị ở môi trường Dev/Local).
 
-## Build
+## Build & Deploy (Môi trường Prod - ẩn trang Quản trị)
+
+Dự án tách riêng 2 cấu hình từ file gốc [`mkdocs.yml`](mkdocs.yml):
+- **Dev (`mkdocs.dev.yml`):** Dùng cho máy local, hiển thị tab **Quản trị** (`docs/admin.md`).
+- **Prod (`mkdocs.prod.yml`):** Dùng khi build/deploy lên GitHub Pages qua [`hooks/env_hook.py`](hooks/env_hook.py), tự động ẩn tab **Quản trị** và loại bỏ trang `/admin/` khỏi bản build tĩnh.
 
 ```bash
-mkdocs build --strict
+# Build bản Production (không bao gồm trang Admin)
+mkdocs build -f mkdocs.prod.yml --strict
 ```
 
-Output nằm trong thư mục `site/`; có thể deploy lên bất kỳ static hosting nào (Nginx, GitHub Pages, S3/CloudFront...).
+Output nằm trong thư mục `site/`; GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) tự động build theo `mkdocs.prod.yml` và deploy lên nhánh `gh-pages` mỗi khi push vào `main`.
 
 ## Quản lý bài viết (Thêm / Xóa / Web UI)
 

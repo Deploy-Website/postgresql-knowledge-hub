@@ -39,10 +39,13 @@ def main():
     mkdocs_exe = get_mkdocs_exe()
     admin_script = str(PROJECT_ROOT / "admin_server.py")
 
+    dev_config = PROJECT_ROOT / "mkdocs.dev.yml"
+    mkdocs_cmd = [mkdocs_exe, "serve", "-f", "mkdocs.dev.yml"] if dev_config.exists() else [mkdocs_exe, "serve"]
+
     processes = []
     try:
-        # 1. Khởi chạy MkDocs Serve
-        p_mkdocs = subprocess.Popen([mkdocs_exe, "serve"], cwd=str(PROJECT_ROOT))
+        # 1. Khởi chạy MkDocs Serve (môi trường Dev)
+        p_mkdocs = subprocess.Popen(mkdocs_cmd, cwd=str(PROJECT_ROOT))
         processes.append(p_mkdocs)
 
         # 2. Khởi chạy Admin Server

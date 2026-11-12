@@ -1,7 +1,7 @@
 site_name: PostgreSQL Handbook
 site_description: Hệ thống tài liệu PostgreSQL dành cho phát triển, vận hành và tối ưu hiệu năng
-# Thay thế bằng domain thật trước khi triển khai production.
-site_url: https://deploy-website.github.io/postgresql-knowledge-hub/
+# URL mặc định cho local/dev; môi trường production dùng mkdocs.prod.yml
+site_url: http://127.0.0.1:8000/
 
 repo_url: https://www.postgresql.org/docs/current/
 repo_name: Official PostgreSQL Docs
@@ -69,6 +69,9 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
 
+hooks:
+  - hooks/env_hook.py
+
 nav:
   - Home: index.md
   - Guide:
@@ -96,5 +99,5 @@ nav:
       - Tổng quan: troubleshooting/index.md
       - Lỗi kết nối: troubleshooting/connections.md
       - Truy vấn bị khóa: troubleshooting/locking.md
-      - Component khi tạo file: troubleshooting/components-share.md
+      - Component khi tạo file 1: troubleshooting/components-share.md
   - Quản trị: admin.md
