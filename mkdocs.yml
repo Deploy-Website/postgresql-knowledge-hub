@@ -1,0 +1,100 @@
+site_name: PostgreSQL Handbook
+site_description: Hệ thống tài liệu PostgreSQL dành cho phát triển, vận hành và tối ưu hiệu năng
+# Thay thế bằng domain thật trước khi triển khai production.
+site_url: https://postgres-docs.example.com/
+
+repo_url: https://www.postgresql.org/docs/current/
+repo_name: Official PostgreSQL Docs
+
+theme:
+  name: material
+  language: vi
+  icon:
+    logo: material/database
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Chuyển sang chế độ tối
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Chuyển sang chế độ sáng
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+plugins:
+  - search:
+      lang:
+        - en
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Guide:
+      - Tổng quan: guide/index.md
+      - Bắt đầu:
+          - Kết nối bằng psql: guide/getting-started/psql.md
+          - PostgreSQL với Docker: guide/getting-started/docker.md
+      - SQL:
+          - Truy vấn dữ liệu: guide/sql/queries.md
+          - "Transaction & MVCC": guide/sql/transactions.md
+      - Hiệu năng:
+          - EXPLAIN ANALYZE: guide/performance/explain.md
+          - Indexing: guide/performance/indexes.md
+          - Quy trình tối ưu truy vấn: guide/performance/query-tuning.md
+  - Operations:
+      - Giới thiệu: operations/index.md
+      - Theo dõi truy vấn: operations/monitoring.md
+      - "VACUUM & ANALYZE": operations/vacuum.md
+      - "Backup & Restore": operations/backup-restore.md
+      - "Roles & Security": operations/security.md
+  - Best Practices:
+      - Tổng quan: best-practices/index.md
+      - Pagination: best-practices/pagination.md
+  - Troubleshooting:
+      - Tổng quan: troubleshooting/index.md
+      - Lỗi kết nối: troubleshooting/connections.md
+      - Truy vấn bị khóa: troubleshooting/locking.md
+      - Component khi tạo file: troubleshooting/components-share.md
+  - Quản trị: admin.md
