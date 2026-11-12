@@ -1,123 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://example.com/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/about/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/admin/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/blog/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/best-practices/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/blog/2026/11/10/understanding-postgresql-connections/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/best-practices/pagination/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/administration/backup-restore/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/getting-started/docker/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/administration/monitoring/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/getting-started/psql/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/concurrency/locking/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/performance/explain/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/concurrency/mvcc/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/performance/indexes/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/concurrency/vacuum/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/performance/query-tuning/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/concurrency/wal/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/sql/queries/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/connection-management/connection-lifecycle/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/guide/sql/transactions/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/connection-management/connection-pooling/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/operations/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/fundamentals/architecture/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/operations/backup-restore/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/fundamentals/database-schema/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/operations/monitoring/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/fundamentals/memory-architecture/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/operations/security/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/fundamentals/process-architecture/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/operations/vacuum/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/fundamentals/storage-architecture/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/troubleshooting/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/getting-started/installation/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/troubleshooting/components-share/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/getting-started/introduction/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/troubleshooting/connections/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
     <url>
-         <loc>https://example.com/database/postgresql/indexing/index-fundamentals/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/performance/explain-analyze/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/performance/query-planner/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/production/capacity-planning/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/production/troubleshooting/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/sql-query/query-basics/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/database/postgresql/sql-query/transactions/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/blog/archive/2026/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/blog/category/postgresql/</loc>
-         <lastmod>2026-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://example.com/blog/category/operations/</loc>
-         <lastmod>2026-11-10</lastmod>
+         <loc>https://deploy-website.github.io/postgresql-knowledge-hub/troubleshooting/locking/</loc>
+         <lastmod>2026-11-12</lastmod>
     </url>
 </urlset>
