@@ -1,7 +1,7 @@
 site_name: PostgreSQL Handbook
 site_description: Hệ thống tài liệu PostgreSQL dành cho phát triển, vận hành và tối ưu hiệu năng
 # Thay thế bằng domain thật trước khi triển khai production.
-site_url: https://postgres-docs.example.com/
+site_url: https://deploy-website.github.io/postgresql-knowledge-hub/
 
 repo_url: https://www.postgresql.org/docs/current/
 repo_name: Official PostgreSQL Docs
