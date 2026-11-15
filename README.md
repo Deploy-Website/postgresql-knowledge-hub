@@ -105,5 +105,23 @@ Các đoạn SQL chỉ có tính minh họa. Thử trên môi trường test, xe
 Tham khảo: https://www.postgresql.org/docs/current/ và https://squidfunk.github.io/mkdocs-material/
 
 # Chạy ứng dụng bao gồm client 8000 và admin 8001
+## Cài đặt đầy đủ thư viện cho .venv
+```bash
+python -m venv .venv
 
+# Cài thư viện local
+.\.venv\Scripts\pip.exe install -r requirements.txt pyyaml
+
+# Chạy docs (8000) và admin (8001)
 .venv\Scripts\python.exe dev.py
+
+```
+
+## Thêm bài viết mới bằng Clipboard
+```bash
+# 1. Tạo file bài viết mới và tự động đăng ký vào mkdocs.yml
+.venv\Scripts\python.exe new_article.py -t "Cơ chế MVCC" -c "Guide" -s "Internals"
+
+# 2. Ghi đè nội dung từ Clipboard vào file vừa tạo (UTF-8)
+Get-Clipboard -Raw | Out-File -FilePath "docs\guide\internals\co-che-mvcc.md" -Encoding utf8
+```

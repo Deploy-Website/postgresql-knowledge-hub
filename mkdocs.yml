@@ -9,8 +9,9 @@ repo_name: Official PostgreSQL Docs
 theme:
   name: material
   language: vi
+  favicon: assets/images/favicon.svg
   icon:
-    logo: material/database
+    logo: simple/postgresql
   font:
     text: Inter
     code: JetBrains Mono
@@ -55,19 +56,25 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  generator: false
 
 hooks:
   - hooks/env_hook.py
@@ -92,9 +99,15 @@ nav:
       - "VACUUM & ANALYZE": operations/vacuum.md
       - "Backup & Restore": operations/backup-restore.md
       - "Roles & Security": operations/security.md
+      - High Level Database Concepts:
+          - AICD: operations/high-level-database-concepts/aicd-concepts.md
+          - Cơ chế MVCC: operations/high-level-database-concepts/co-che-mvcc.md
+          - Cơ chế Write-Ahead Log (WAL): operations/high-level-database-concepts/co-che-write-ahead-log-wal.md
   - Best Practices:
       - Tổng quan: best-practices/index.md
       - Pagination: best-practices/pagination.md
+      - Issues:
+          - Xử lý bẫy Idle in Transaction: best-practices/issues/xu-ly-bay-idle-in-transaction.md
   - Troubleshooting:
       - Tổng quan: troubleshooting/index.md
       - Lỗi kết nối: troubleshooting/connections.md

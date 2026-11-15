@@ -11,7 +11,7 @@ hide:
 <div class="spa-hero" markdown>
 
 <div class="spa-hero__badge">
-  <span class="spa-badge-dot"></span>
+  <img src="assets/images/favicon.svg" alt="PostgreSQL" style="width: 16px; height: 16px;">
   <span>PostgreSQL 18 Ready &bull; Cẩm nang thực chiến nội bộ</span>
 </div>
 
