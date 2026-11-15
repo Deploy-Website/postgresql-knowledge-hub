@@ -520,3 +520,11 @@ body:has(.spa-home) .md-typeset h1:first-child {
   max-width: 580px;
   margin: 0 auto 1.5rem;
 }
+
+/* ==========================================================================
+   Ẩn hoàn toàn Footer (Made with Material for MkDocs) trên tất cả các trang
+   ========================================================================== */
+.md-footer {
+  display: none !important;
+}
+

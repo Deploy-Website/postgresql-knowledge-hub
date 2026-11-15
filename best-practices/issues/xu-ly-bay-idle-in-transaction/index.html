@@ -1,0 +1,2859 @@
+
+<!doctype html>
+<html lang="vi" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Runbook toàn diện điều tra, xử lý và phòng tránh bẫy Idle in Transaction trong PostgreSQL, Amazon Aurora và Spring Boot.">
+      
+      
+      
+        <link rel="canonical" href="https://deploy-website.github.io/postgresql-knowledge-hub/best-practices/issues/xu-ly-bay-idle-in-transaction/">
+      
+      
+        <link rel="prev" href="../../pagination/">
+      
+      
+        <link rel="next" href="../../../troubleshooting/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Xử lý bẫy Idle in Transaction - PostgreSQL Handbook</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#xu-ly-bay-idle-in-transaction" class="md-skip">
+          Bỏ qua
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Đầu trang">
+    <a href="../../.." title="PostgreSQL Handbook" class="md-header__button md-logo" aria-label="PostgreSQL Handbook" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.56 14.723a.5.5 0 0 0-.057-.12q-.21-.395-1.007-.231c-1.654.34-2.294.13-2.526-.02 1.342-2.048 2.445-4.522 3.041-6.83.272-1.05.798-3.523.122-4.73a1.6 1.6 0 0 0-.15-.236C21.693.91 19.8.025 17.51.001c-1.495-.016-2.77.346-3.116.479a10 10 0 0 0-.516-.082 8 8 0 0 0-1.312-.127c-1.182-.019-2.203.264-3.05.84C8.66.79 4.729-.534 2.296 1.19.935 2.153.309 3.873.43 6.304c.041.818.507 3.334 1.243 5.744q.69 2.26 1.433 3.582.83 1.493 1.714 1.79c.448.148 1.133.143 1.858-.729a56 56 0 0 1 1.945-2.206c.435.235.906.362 1.39.377v.004a11 11 0 0 0-.247.305c-.339.43-.41.52-1.5.745-.31.064-1.134.233-1.146.811a.6.6 0 0 0 .091.327c.227.423.922.61 1.015.633 1.335.333 2.505.092 3.372-.679-.017 2.231.077 4.418.345 5.088.221.553.762 1.904 2.47 1.904q.375.001.829-.094c1.782-.382 2.556-1.17 2.855-2.906.15-.87.402-2.875.539-4.101.017-.07.036-.12.057-.136 0 0 .07-.048.427.03l.044.007.254.022.015.001c.847.039 1.911-.142 2.531-.43.644-.3 1.806-1.033 1.595-1.67M2.37 11.876c-.744-2.435-1.178-4.885-1.212-5.571-.109-2.172.417-3.683 1.562-4.493 1.837-1.299 4.84-.54 6.108-.13l-.01.01C6.795 3.734 6.843 7.226 6.85 7.44c0 .082.006.199.016.36.034.586.1 1.68-.074 2.918-.16 1.15.194 2.276.973 3.089q.12.126.252.237c-.347.371-1.1 1.193-1.903 2.158-.568.682-.96.551-1.088.508-.392-.13-.813-.587-1.239-1.322-.48-.839-.963-2.032-1.415-3.512m6.007 5.088a1.6 1.6 0 0 1-.432-.178c.089-.039.237-.09.483-.14 1.284-.265 1.482-.451 1.915-1 .099-.127.211-.27.367-.443a.4.4 0 0 0 .074-.13c.17-.151.272-.11.436-.042.156.065.308.26.37.475.03.102.062.295-.045.445-.904 1.266-2.222 1.25-3.168 1.013m2.094-3.988-.052.14c-.133.357-.257.689-.334 1.004-.667-.002-1.317-.288-1.81-.803-.628-.655-.913-1.566-.783-2.5.183-1.308.116-2.447.08-3.059l-.013-.22c.296-.262 1.666-.996 2.643-.772.446.102.718.406.83.928.585 2.704.078 3.83-.33 4.736a9 9 0 0 0-.23.546m7.364 4.572q-.024.266-.062.596l-.146.438a.4.4 0 0 0-.018.108c-.006.475-.054.649-.115.87-.064.229-.135.488-.18 1.057-.11 1.414-.878 2.227-2.417 2.556-1.515.325-1.784-.496-2.02-1.221a7 7 0 0 0-.078-.227c-.215-.586-.19-1.412-.157-2.555.016-.561-.025-1.901-.33-2.646q.006-.44.019-.892a.4.4 0 0 0-.016-.113 2 2 0 0 0-.044-.208c-.122-.428-.42-.786-.78-.935-.142-.059-.403-.167-.717-.087.067-.276.183-.587.309-.925l.053-.142c.06-.16.134-.325.213-.5.426-.948 1.01-2.246.376-5.178-.237-1.098-1.03-1.634-2.232-1.51-.72.075-1.38.366-1.709.532a6 6 0 0 0-.196.104c.092-1.106.439-3.174 1.736-4.482a4 4 0 0 1 .303-.276.35.35 0 0 0 .145-.064c.752-.57 1.695-.85 2.802-.833q.616.01 1.174.081c1.94.355 3.244 1.447 4.036 2.383.814.962 1.255 1.931 1.431 2.454-1.323-.134-2.223.127-2.68.78-.992 1.418.544 4.172 1.282 5.496.135.242.252.452.289.54.24.583.551.972.778 1.256.07.087.138.171.189.245-.4.116-1.12.383-1.055 1.717-.013.156-.043.447-.084.815-.046.208-.07.46-.1.766m.89-1.621c-.04-.832.27-.919.597-1.01l.135-.041a1 1 0 0 0 .134.103c.57.376 1.583.421 3.007.134-.202.177-.519.4-.953.601-.41.19-1.096.333-1.747.364-.72.034-1.086-.08-1.173-.151m.57-9.271c-.006.35-.054.669-.105 1.001-.055.358-.112.728-.127 1.177-.014.436.04.89.093 1.33.107.887.216 1.8-.207 2.701a4 4 0 0 1-.188-.385 8 8 0 0 0-.325-.617c-.616-1.104-2.057-3.69-1.32-4.744.38-.543 1.342-.566 2.179-.463m.228 7.013-.085-.107-.035-.044c.726-1.2.584-2.387.457-3.439-.052-.432-.1-.84-.088-1.222.013-.407.066-.755.118-1.092.064-.415.13-.844.111-1.35a.6.6 0 0 0 .012-.19c-.046-.486-.6-1.938-1.73-3.253a7.8 7.8 0 0 0-2.688-2.04A9.3 9.3 0 0 1 17.62.746c2.052.046 3.675.814 4.824 2.283a1 1 0 0 1 .067.1c.723 1.356-.276 6.275-2.987 10.54m-8.816-6.116c-.025.18-.31.423-.621.423a1 1 0 0 1-.081-.006.8.8 0 0 1-.506-.315c-.046-.06-.12-.178-.106-.285a.22.22 0 0 1 .093-.149c.118-.089.352-.122.61-.086.316.044.642.193.61.418m7.93-.411c.011.08-.049.2-.153.31a.72.72 0 0 1-.408.223 1 1 0 0 1-.075.005c-.293 0-.541-.234-.56-.371-.024-.177.264-.31.56-.352.298-.042.612.009.636.185"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PostgreSQL Handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Xử lý bẫy Idle in Transaction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Chuyển sang chế độ tối"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Chuyển sang chế độ tối" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Chuyển sang chế độ sáng"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Chuyển sang chế độ sáng" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Tìm kiếm" placeholder="Tìm kiếm" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Tìm kiếm">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Xoá" aria-label="Xoá" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://www.postgresql.org/docs/current/" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Official PostgreSQL Docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Best Practices
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../troubleshooting/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Troubleshooting
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Thanh điều hướng" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PostgreSQL Handbook" class="md-nav__button md-logo" aria-label="PostgreSQL Handbook" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.56 14.723a.5.5 0 0 0-.057-.12q-.21-.395-1.007-.231c-1.654.34-2.294.13-2.526-.02 1.342-2.048 2.445-4.522 3.041-6.83.272-1.05.798-3.523.122-4.73a1.6 1.6 0 0 0-.15-.236C21.693.91 19.8.025 17.51.001c-1.495-.016-2.77.346-3.116.479a10 10 0 0 0-.516-.082 8 8 0 0 0-1.312-.127c-1.182-.019-2.203.264-3.05.84C8.66.79 4.729-.534 2.296 1.19.935 2.153.309 3.873.43 6.304c.041.818.507 3.334 1.243 5.744q.69 2.26 1.433 3.582.83 1.493 1.714 1.79c.448.148 1.133.143 1.858-.729a56 56 0 0 1 1.945-2.206c.435.235.906.362 1.39.377v.004a11 11 0 0 0-.247.305c-.339.43-.41.52-1.5.745-.31.064-1.134.233-1.146.811a.6.6 0 0 0 .091.327c.227.423.922.61 1.015.633 1.335.333 2.505.092 3.372-.679-.017 2.231.077 4.418.345 5.088.221.553.762 1.904 2.47 1.904q.375.001.829-.094c1.782-.382 2.556-1.17 2.855-2.906.15-.87.402-2.875.539-4.101.017-.07.036-.12.057-.136 0 0 .07-.048.427.03l.044.007.254.022.015.001c.847.039 1.911-.142 2.531-.43.644-.3 1.806-1.033 1.595-1.67M2.37 11.876c-.744-2.435-1.178-4.885-1.212-5.571-.109-2.172.417-3.683 1.562-4.493 1.837-1.299 4.84-.54 6.108-.13l-.01.01C6.795 3.734 6.843 7.226 6.85 7.44c0 .082.006.199.016.36.034.586.1 1.68-.074 2.918-.16 1.15.194 2.276.973 3.089q.12.126.252.237c-.347.371-1.1 1.193-1.903 2.158-.568.682-.96.551-1.088.508-.392-.13-.813-.587-1.239-1.322-.48-.839-.963-2.032-1.415-3.512m6.007 5.088a1.6 1.6 0 0 1-.432-.178c.089-.039.237-.09.483-.14 1.284-.265 1.482-.451 1.915-1 .099-.127.211-.27.367-.443a.4.4 0 0 0 .074-.13c.17-.151.272-.11.436-.042.156.065.308.26.37.475.03.102.062.295-.045.445-.904 1.266-2.222 1.25-3.168 1.013m2.094-3.988-.052.14c-.133.357-.257.689-.334 1.004-.667-.002-1.317-.288-1.81-.803-.628-.655-.913-1.566-.783-2.5.183-1.308.116-2.447.08-3.059l-.013-.22c.296-.262 1.666-.996 2.643-.772.446.102.718.406.83.928.585 2.704.078 3.83-.33 4.736a9 9 0 0 0-.23.546m7.364 4.572q-.024.266-.062.596l-.146.438a.4.4 0 0 0-.018.108c-.006.475-.054.649-.115.87-.064.229-.135.488-.18 1.057-.11 1.414-.878 2.227-2.417 2.556-1.515.325-1.784-.496-2.02-1.221a7 7 0 0 0-.078-.227c-.215-.586-.19-1.412-.157-2.555.016-.561-.025-1.901-.33-2.646q.006-.44.019-.892a.4.4 0 0 0-.016-.113 2 2 0 0 0-.044-.208c-.122-.428-.42-.786-.78-.935-.142-.059-.403-.167-.717-.087.067-.276.183-.587.309-.925l.053-.142c.06-.16.134-.325.213-.5.426-.948 1.01-2.246.376-5.178-.237-1.098-1.03-1.634-2.232-1.51-.72.075-1.38.366-1.709.532a6 6 0 0 0-.196.104c.092-1.106.439-3.174 1.736-4.482a4 4 0 0 1 .303-.276.35.35 0 0 0 .145-.064c.752-.57 1.695-.85 2.802-.833q.616.01 1.174.081c1.94.355 3.244 1.447 4.036 2.383.814.962 1.255 1.931 1.431 2.454-1.323-.134-2.223.127-2.68.78-.992 1.418.544 4.172 1.282 5.496.135.242.252.452.289.54.24.583.551.972.778 1.256.07.087.138.171.189.245-.4.116-1.12.383-1.055 1.717-.013.156-.043.447-.084.815-.046.208-.07.46-.1.766m.89-1.621c-.04-.832.27-.919.597-1.01l.135-.041a1 1 0 0 0 .134.103c.57.376 1.583.421 3.007.134-.202.177-.519.4-.953.601-.41.19-1.096.333-1.747.364-.72.034-1.086-.08-1.173-.151m.57-9.271c-.006.35-.054.669-.105 1.001-.055.358-.112.728-.127 1.177-.014.436.04.89.093 1.33.107.887.216 1.8-.207 2.701a4 4 0 0 1-.188-.385 8 8 0 0 0-.325-.617c-.616-1.104-2.057-3.69-1.32-4.744.38-.543 1.342-.566 2.179-.463m.228 7.013-.085-.107-.035-.044c.726-1.2.584-2.387.457-3.439-.052-.432-.1-.84-.088-1.222.013-.407.066-.755.118-1.092.064-.415.13-.844.111-1.35a.6.6 0 0 0 .012-.19c-.046-.486-.6-1.938-1.73-3.253a7.8 7.8 0 0 0-2.688-2.04A9.3 9.3 0 0 1 17.62.746c2.052.046 3.675.814 4.824 2.283a1 1 0 0 1 .067.1c.723 1.356-.276 6.275-2.987 10.54m-8.816-6.116c-.025.18-.31.423-.621.423a1 1 0 0 1-.081-.006.8.8 0 0 1-.506-.315c-.046-.06-.12-.178-.106-.285a.22.22 0 0 1 .093-.149c.118-.089.352-.122.61-.086.316.044.642.193.61.418m7.93-.411c.011.08-.049.2-.153.31a.72.72 0 0 1-.408.223 1 1 0 0 1-.075.005c-.293 0-.541-.234-.56-.371-.024-.177.264-.31.56-.352.298-.042.612.009.636.185"/></svg>
+
+    </a>
+    PostgreSQL Handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://www.postgresql.org/docs/current/" title="Xem mã nguồn" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Official PostgreSQL Docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bắt đầu
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bắt đầu
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/getting-started/psql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kết nối bằng psql
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/getting-started/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL với Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SQL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/sql/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Truy vấn dữ liệu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/sql/transactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transaction & MVCC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hiệu năng
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hiệu năng
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/performance/explain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EXPLAIN ANALYZE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/performance/indexes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indexing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/performance/query-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quy trình tối ưu truy vấn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../operations/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theo dõi truy vấn
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/vacuum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VACUUM & ANALYZE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup & Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roles & Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High Level Database Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    High Level Database Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/high-level-database-concepts/aicd-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AICD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/high-level-database-concepts/co-che-mvcc/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0 3 7l1.63 1.27L12 14l7.36-5.73L21 7zm7.37 10.73L12 16.47l-7.38-5.73L3 12l9 7 9-7zm0 5L12 21.47l-7.38-5.73L3 17l9 7 9-7z"/></svg>
+  
+  <span class="md-ellipsis">
+    
+  
+    Cơ chế MVCC
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--new"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/high-level-database-concepts/co-che-write-ahead-log-wal/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2c-1.11 0-2 .89-2 2v16a2 2 0 0 0 2 2h4v-1.91L12.09 18H6v-2h8.09l2-2H6v-2h12.09L20 10.09V8l-6-6zm7 1.5L18.5 9H13zm7.15 9.5a.55.55 0 0 0-.4.16l-1.02 1.02 2.09 2.08 1.02-1.01c.21-.22.21-.58 0-.79l-1.3-1.3a.54.54 0 0 0-.39-.16m-2.01 1.77L12 20.92V23h2.08l6.15-6.15z"/></svg>
+  
+  <span class="md-ellipsis">
+    
+  
+    Cơ chế Write-Ahead Log (WAL)
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--new"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Best Practices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issues
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Issues
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16.5 16.25 2.86 1.69-.75 1.22L15 17v-5h1.5zM23 16c0 3.87-3.13 7-7 7a7 7 0 0 1-5.75-3C6.18 19.79 3 18.08 3 16v-3c0 1.88 2.58 3.44 6.06 3.88C9.03 16.59 9 16.3 9 16c0-.38.04-.75.1-1.12-3.5-.43-6.1-2-6.1-3.88V8c0 2.09 3.2 3.8 7.27 4 .6-.86 1.37-1.56 2.26-2.07-.49.04-1.03.07-1.53.07-4.42 0-8-1.79-8-4s3.58-4 8-4 8 1.79 8 4c0 1.2-1.07 2.28-2.75 3 .75.04 1.5.19 2.19.45C18.79 9 19 8.5 19 8v1.68c2.36 1.13 4 3.53 4 6.32m-2 0c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5"/></svg>
+  
+  <span class="md-ellipsis">
+    
+  
+    Xử lý bẫy Idle in Transaction
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16.5 16.25 2.86 1.69-.75 1.22L15 17v-5h1.5zM23 16c0 3.87-3.13 7-7 7a7 7 0 0 1-5.75-3C6.18 19.79 3 18.08 3 16v-3c0 1.88 2.58 3.44 6.06 3.88C9.03 16.59 9 16.3 9 16c0-.38.04-.75.1-1.12-3.5-.43-6.1-2-6.1-3.88V8c0 2.09 3.2 3.8 7.27 4 .6-.86 1.37-1.56 2.26-2.07-.49.04-1.03.07-1.53.07-4.42 0-8-1.79-8-4s3.58-4 8-4 8 1.79 8 4c0 1.2-1.07 2.28-2.75 3 .75.04 1.5.19 2.19.45C18.79 9 19 8.5 19 8v1.68c2.36 1.13 4 3.53 4 6.32m-2 0c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5"/></svg>
+  
+  <span class="md-ellipsis">
+    
+  
+    Xử lý bẫy Idle in Transaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-ban-chat-co-che-phat-sinh-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Bản chất &amp; Cơ chế phát sinh lỗi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Bản chất &amp; Cơ chế phát sinh lỗi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-phan-biet-cac-trang-thai-cua-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1. Phân biệt các trạng thái của Session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-chu-trinh-phat-sinh-bay-trong-ung-dung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2. Chu trình phát sinh bẫy trong ứng dụng
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tac-hai-oi-voi-database-ung-dung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tác hại đối với Database &amp; Ứng dụng
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-runbook-ieu-tra-tren-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Runbook điều tra trên PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-xu-ly-khan-cap-emergency-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Xử lý khẩn cấp (Emergency Runbook)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Xử lý khẩn cấp (Emergency Runbook)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buoc-1-anh-gia-truoc-khi-can-thiep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bước 1: Đánh giá trước khi can thiệp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buoc-2-huy-hoac-buoc-ngat-ket-noi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bước 2: Hủy hoặc Buộc ngắt kết nối
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phong-ngua-tai-postgresql-amazon-aurora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phòng ngừa tại PostgreSQL &amp; Amazon Aurora
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Phòng ngừa tại PostgreSQL &amp; Amazon Aurora">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-cau-hinh-idle_in_transaction_session_timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1. Cấu hình idle_in_transaction_session_timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-so-sanh-cac-bo-timeout-cot-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2. So sánh các bộ Timeout cốt lõi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-luu-y-rieng-voi-amazon-aurora-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3. Lưu ý riêng với Amazon Aurora PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-khac-phuc-triet-e-trong-spring-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Khắc phục triệt để trong Spring Boot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Khắc phục triệt để trong Spring Boot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-khong-truyen-jpa-entity-ra-ngoai-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1. Không truyền JPA Entity ra ngoài Transaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-canh-bao-bay-self-invocation-trong-spring-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2. Cảnh báo bẫy Self-Invocation trong Spring Proxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-cau-hinh-connection-pool-hikaricp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Cấu hình Connection Pool (HikariCP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Cấu hình Connection Pool (HikariCP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-cau-hinh-mau-trong-applicationyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Cấu hình mẫu trong application.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-phan-tich-chuc-nang-cac-tham-so-hikaricp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Phân tích chức năng các tham số HikariCP
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-observability-canh-bao-som" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Observability &amp; Cảnh báo sớm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Observability &amp; Cảnh báo sớm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-at-applicationname-tren-jdbc-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Đặt ApplicationName trên JDBC URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-canh-bao-som-voi-prometheus-cloudwatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Cảnh báo sớm với Prometheus / CloudWatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-checklist-kiem-tra-truoc-khi-len-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Checklist kiểm tra trước khi lên Production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-cac-hieu-lam-kinh-ien-common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Các hiểu lầm kinh điển (Common Pitfalls)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-tai-lieu-tham-khao-chinh-thuc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Tài liệu tham khảo chính thức
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../troubleshooting/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Troubleshooting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/connections/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lỗi kết nối
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Truy vấn bị khóa
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/components-share/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Component khi tạo file 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Mục lục">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Mục lục
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-ban-chat-co-che-phat-sinh-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Bản chất &amp; Cơ chế phát sinh lỗi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Bản chất &amp; Cơ chế phát sinh lỗi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-phan-biet-cac-trang-thai-cua-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1. Phân biệt các trạng thái của Session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-chu-trinh-phat-sinh-bay-trong-ung-dung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2. Chu trình phát sinh bẫy trong ứng dụng
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tac-hai-oi-voi-database-ung-dung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tác hại đối với Database &amp; Ứng dụng
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-runbook-ieu-tra-tren-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Runbook điều tra trên PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-xu-ly-khan-cap-emergency-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Xử lý khẩn cấp (Emergency Runbook)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Xử lý khẩn cấp (Emergency Runbook)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buoc-1-anh-gia-truoc-khi-can-thiep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bước 1: Đánh giá trước khi can thiệp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buoc-2-huy-hoac-buoc-ngat-ket-noi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bước 2: Hủy hoặc Buộc ngắt kết nối
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phong-ngua-tai-postgresql-amazon-aurora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phòng ngừa tại PostgreSQL &amp; Amazon Aurora
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Phòng ngừa tại PostgreSQL &amp; Amazon Aurora">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-cau-hinh-idle_in_transaction_session_timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1. Cấu hình idle_in_transaction_session_timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-so-sanh-cac-bo-timeout-cot-loi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2. So sánh các bộ Timeout cốt lõi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-luu-y-rieng-voi-amazon-aurora-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3. Lưu ý riêng với Amazon Aurora PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-khac-phuc-triet-e-trong-spring-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Khắc phục triệt để trong Spring Boot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Khắc phục triệt để trong Spring Boot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-khong-truyen-jpa-entity-ra-ngoai-transaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1. Không truyền JPA Entity ra ngoài Transaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-canh-bao-bay-self-invocation-trong-spring-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2. Cảnh báo bẫy Self-Invocation trong Spring Proxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-cau-hinh-connection-pool-hikaricp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Cấu hình Connection Pool (HikariCP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Cấu hình Connection Pool (HikariCP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-cau-hinh-mau-trong-applicationyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Cấu hình mẫu trong application.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-phan-tich-chuc-nang-cac-tham-so-hikaricp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Phân tích chức năng các tham số HikariCP
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-observability-canh-bao-som" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Observability &amp; Cảnh báo sớm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Observability &amp; Cảnh báo sớm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-at-applicationname-tren-jdbc-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Đặt ApplicationName trên JDBC URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-canh-bao-som-voi-prometheus-cloudwatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Cảnh báo sớm với Prometheus / CloudWatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-checklist-kiem-tra-truoc-khi-len-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Checklist kiểm tra trước khi lên Production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-cac-hieu-lam-kinh-ien-common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Các hiểu lầm kinh điển (Common Pitfalls)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-tai-lieu-tham-khao-chinh-thuc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Tài liệu tham khảo chính thức
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="xu-ly-bay-idle-in-transaction">Xử lý bẫy Idle in Transaction<a class="headerlink" href="#xu-ly-bay-idle-in-transaction" title="Permanent link">&para;</a></h1>
+<div class="admonition abstract">
+<p class="admonition-title">Bản chất &amp; Phạm vi áp dụng</p>
+<ul>
+<li><strong>Khái niệm:</strong> <code>idle in transaction</code> là trạng thái một database session đã mở giao dịch (<code>BEGIN</code>) nhưng tạm dừng không gửi lệnh SQL tiếp theo tới PostgreSQL, đồng thời cũng chưa kết thúc bằng <code>COMMIT</code> hoặc <code>ROLLBACK</code>.</li>
+<li><strong>Phạm vi áp dụng:</strong> PostgreSQL (mọi phiên bản), Amazon Aurora PostgreSQL, Java / Spring Boot (<code>@Transactional</code>, Spring Data JPA/Hibernate), HikariCP.</li>
+<li><strong>Hệ quả chính:</strong> Gây cạn kiệt Connection Pool (<code>ConnectionTimeoutException</code>), cản trở <code>VACUUM</code> dọn dẹp Dead Tuples dẫn đến Table/Index Bloat nghiêm trọng, và có thể giữ các loại khóa (Locks) làm treo nghẽn diện rộng.</li>
+</ul>
+</div>
+<hr />
+<h2 id="1-ban-chat-co-che-phat-sinh-loi">1. Bản chất &amp; Cơ chế phát sinh lỗi<a class="headerlink" href="#1-ban-chat-co-che-phat-sinh-loi" title="Permanent link">&para;</a></h2>
+<h3 id="11-phan-biet-cac-trang-thai-cua-session">1.1. Phân biệt các trạng thái của Session<a class="headerlink" href="#11-phan-biet-cac-trang-thai-cua-session" title="Permanent link">&para;</a></h3>
+<p>Trong bảng quản lý <code>pg_stat_activity</code>, mỗi session luôn thuộc một trong các trạng thái sau:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Trạng thái</th>
+<th style="text-align: left;">Hành vi của Database Backend</th>
+<th style="text-align: left;">Đánh giá rủi ro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>active</code></strong></td>
+<td style="text-align: left;">Backend đang tích cực xử lý dữ liệu hoặc chờ tài nguyên đĩa/CPU cho query hiện tại.</td>
+<td style="text-align: left;">Bình thường (trừ khi query chạy chậm bất thường vượt SLA).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>idle</code></strong></td>
+<td style="text-align: left;">Kết nối đang rảnh rỗi trong pool, <strong>không có transaction nào đang mở</strong>.</td>
+<td style="text-align: left;">Hoàn toàn an toàn và lành mạnh.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>idle in transaction</code></strong></td>
+<td style="text-align: left;">Giao dịch đã mở nhưng client dừng gửi lệnh (đang bận làm việc khác).</td>
+<td style="text-align: left;"><strong>Nguy hiểm</strong>: Giữ Snapshot cũ, giữ Connection và có thể giữ Lock.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>idle in transaction (aborted)</code></strong></td>
+<td style="text-align: left;">Giao dịch gặp lỗi cú pháp/ràng buộc nhưng ứng dụng chưa gọi <code>ROLLBACK</code>.</td>
+<td style="text-align: left;"><strong>Nguy hiểm</strong>: Chiếm dụng tài nguyên tương tự như trên cho đến khi bị đóng.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-chu-trinh-phat-sinh-bay-trong-ung-dung">1.2. Chu trình phát sinh bẫy trong ứng dụng<a class="headerlink" href="#12-chu-trinh-phat-sinh-bay-trong-ung-dung" title="Permanent link">&para;</a></h3>
+<p>Nguyên nhân phổ biến nhất trong thực tế là việc đặt annotation <code>@Transactional</code> bao trùm toàn bộ method nghiệp vụ chứa các tác vụ bên ngoài (External I/O):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>│ 1. Client gửi request -&gt; Spring kích hoạt method @Transactional
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│    └── HikariCP cấp Connection -&gt; Gửi BEGIN mở transaction trên PostgreSQL
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                                
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│ 2. Thực hiện câu lệnh SQL đầu tiên                             
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│    └── SELECT / UPDATE hoàn tất nhanh chóng trong vài mili-giây
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│                                                                
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│ 3. ⚠️ BẪY NGUY HIỂM: Gọi HTTP API bên ngoài / Xử lý File / Đợi Message Queue
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│    ├── Client tạm ngừng gửi câu lệnh SQL cho Database          
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│    ├── Database: Chuyển sang trạng thái "idle in transaction"  
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│    ├── Giữ nguyên Snapshot MVCC (chặn Autovacuum dọn dẹp Dead Tuples)     
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│    ├── Giữ khóa dòng/bảng (có thể gây Lock Wait / Treo request khác)      
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│    └── HikariCP Connection bị chiếm dụng (Active tăng cao, gây nghẽn pool)
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│                                                                
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│ 4. Sau vài giây / vài phút chờ đối tác phản hồi                
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│    └── Ứng dụng mới gửi câu lệnh SQL kế tiếp hoặc gửi lệnh COMMIT         
+</span></code></pre></div>
+<hr />
+<h2 id="2-tac-hai-oi-voi-database-ung-dung">2. Tác hại đối với Database &amp; Ứng dụng<a class="headerlink" href="#2-tac-hai-oi-voi-database-ung-dung" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tác động</th>
+<th style="text-align: left;">Cơ chế nội tại &amp; Hậu quả thực tế</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Cạn connection pool</strong></td>
+<td style="text-align: left;">Connection bị chiếm giữ cứng trong suốt thời gian client chờ dịch vụ ngoài, khiến HikariCP rơi vào trạng thái <code>Active</code> tăng vọt, các request mới bị dồn vào hàng đợi <code>Pending</code> và kết thúc bằng lỗi <code>ConnectionTimeoutException</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cản trở VACUUM &amp; Table Bloat</strong></td>
+<td style="text-align: left;">Transaction giữ Snapshot tương ứng với <code>backend_xmin</code> cũ. <strong>Autovacuum không thể xóa bất kỳ Dead Tuple nào</strong> có tuổi đời sau thời điểm đó, khiến bảng và Index phình to nhanh chóng (Bloat), gây suy giảm bộ đệm RAM (Shared Buffers).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giữ Lock gây nghẽn dây chuyền</strong></td>
+<td style="text-align: left;">Nếu transaction đã thực hiện lệnh ghi (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>), các row lock hoặc table lock sẽ được giữ nguyên cho tới khi <code>COMMIT</code>/<code>ROLLBACK</code>. Các transaction khác cập nhật cùng dòng sẽ bị chặn đứng (Lock Wait).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Nguy cơ XID Wraparound</strong></td>
+<td style="text-align: left;">Nếu một transaction bị treo nhiều giờ hoặc nhiều ngày, nó giữ chặn bộ đếm giao dịch toàn cục, đẩy database tới gần ngưỡng khẩn cấp phòng chống tràn số XID.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Lưu ý về Snapshot và Lock</p>
+<p>Không phải cứ <code>idle in transaction</code> là sẽ giữ Lock. Nhưng một transaction mở lâu <strong>luôn luôn giữ Snapshot</strong>, gây cản trở <code>VACUUM</code> ngay cả khi chỉ thực hiện các câu lệnh đọc (<code>SELECT</code>). Do đó, cần xử lý triệt để ngay cả khi không thấy có session khác bị block.</p>
+</div>
+<hr />
+<h2 id="3-runbook-ieu-tra-tren-postgresql">3. Runbook điều tra trên PostgreSQL<a class="headerlink" href="#3-runbook-ieu-tra-tren-postgresql" title="Permanent link">&para;</a></h2>
+<p>Sử dụng các truy vấn sau trực tiếp trên môi trường cần giám sát:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">1. Liệt kê session treo</label><label for="__tabbed_1_2">2. Tìm session gây nghẽn (Blocker)</label><label for="__tabbed_1_3">3. Thống kê tổng quan trạng thái</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Truy vấn danh sách các session đang ở trạng thái <code>idle in transaction</code>, sắp xếp theo thời gian mở giao dịch lâu nhất:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">SELECT</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">pid</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">usename</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">application_name</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">client_addr</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="k">state</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">xact_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">transaction_duration</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state_change</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">idle_duration</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">backend_xid</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">backend_xmin</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="k">left</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">last_query</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'idle in transaction'</span><span class="p">,</span><span class="w"> </span><span class="s1">'idle in transaction (aborted)'</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">xact_start</span><span class="w"> </span><span class="k">ASC</span><span class="p">;</span>
+</span></code></pre></div>
+<p><strong>Ý nghĩa các cột quan trọng:</strong>
+* <code>pid</code>: Mã định danh tiến trình backend (dùng để hủy hoặc ngắt kết nối).
+* <code>application_name</code>: Tên định danh ứng dụng (giúp phân biệt Web API, Worker hay Batch Job).
+* <code>transaction_duration</code>: Tổng thời gian transaction đã mở (càng lớn càng nguy hiểm).
+* <code>idle_duration</code>: Thời gian backend không nhận thêm query nào kể từ câu lệnh gần nhất.
+* <code>backend_xmin</code>: Điểm mốc snapshot MVCC (dùng để xác định nguy cơ chặn <code>VACUUM</code>).</p>
+</div>
+<div class="tabbed-block">
+<p>Xác định chính xác session nào đang giữ Lock và chặn các session khác chờ đợi:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">SELECT</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">blocked</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_pid</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">blocked</span><span class="p">.</span><span class="n">application_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_app</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">blocked</span><span class="p">.</span><span class="k">state</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_state</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">blocked</span><span class="p">.</span><span class="n">query_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_duration</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">blocker</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker_pid</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">blocker</span><span class="p">.</span><span class="n">application_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker_app</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="n">blocker</span><span class="p">.</span><span class="k">state</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker_state</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">blocker</span><span class="p">.</span><span class="n">xact_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker_transaction_duration</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">left</span><span class="p">(</span><span class="n">blocked</span><span class="p">.</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_query</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="k">left</span><span class="p">(</span><span class="n">blocker</span><span class="p">.</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker_last_query</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="n">pg_blocking_pids</span><span class="p">(</span><span class="n">blocked</span><span class="p">.</span><span class="n">pid</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span><span class="p">(</span><span class="n">blocker_pid</span><span class="p">)</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocker</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">blocker</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">blocker_pid</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">blocked</span><span class="p">.</span><span class="n">query_start</span><span class="p">;</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Đọc kết quả</p>
+<p>Nếu <code>blocker_state</code> hiển thị <code>idle in transaction</code>, đây chính là trường hợp kinh điển: ứng dụng đã cập nhật dữ liệu nhưng không commit/rollback, khiến câu query của các session khác (<code>blocked_pid</code>) bị treo vô hạn định.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<p>Đếm số lượng kết nối phân bổ theo từng ứng dụng và trạng thái:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">SELECT</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">coalesce</span><span class="p">(</span><span class="n">application_name</span><span class="p">,</span><span class="w"> </span><span class="s1">'[Unknown]'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">app_name</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">state</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total_connections</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_database</span><span class="p">()</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">application_name</span><span class="p">,</span><span class="w"> </span><span class="k">state</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">app_name</span><span class="p">,</span><span class="w"> </span><span class="n">total_connections</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="4-xu-ly-khan-cap-emergency-runbook">4. Xử lý khẩn cấp (Emergency Runbook)<a class="headerlink" href="#4-xu-ly-khan-cap-emergency-runbook" title="Permanent link">&para;</a></h2>
+<p>Khi phát hiện session gây treo hệ thống trên Production, thực hiện theo thứ tự ưu tiên:</p>
+<h3 id="buoc-1-anh-gia-truoc-khi-can-thiep">Bước 1: Đánh giá trước khi can thiệp<a class="headerlink" href="#buoc-1-anh-gia-truoc-khi-can-thiep" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Xác định PID thuộc dịch vụ nào qua <code>application_name</code> và <code>client_addr</code>.</li>
+<li>Kiểm tra câu lệnh gần nhất (<code>query</code>) và thời gian mở (<code>transaction_duration</code>).</li>
+<li>Kiểm tra xem PID này có đang chặn các query khác không (qua <code>pg_blocking_pids</code>).</li>
+</ol>
+<h3 id="buoc-2-huy-hoac-buoc-ngat-ket-noi">Bước 2: Hủy hoặc Buộc ngắt kết nối<a class="headerlink" href="#buoc-2-huy-hoac-buoc-ngat-ket-noi" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong><code>pg_cancel_backend(pid)</code> (Hủy query hiện tại):</strong>
+    <div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_cancel_backend</span><span class="p">(</span><span class="mi">12345</span><span class="p">);</span>
+</span></code></pre></div>
+    &gt; [!NOTE]
+    &gt; Lệnh này chỉ hủy query đang chạy ở trạng thái <code>active</code>. <strong>Không có tác dụng</strong> đối với session đang ở trạng thái <code>idle in transaction</code>.</p>
+</li>
+<li>
+<p><strong><code>pg_terminate_backend(pid)</code> (Ngắt toàn bộ kết nối):</strong>
+    <div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_terminate_backend</span><span class="p">(</span><span class="mi">12345</span><span class="p">);</span>
+</span></code></pre></div>
+    Lệnh này sẽ lập tức đóng kết nối TCP của backend. PostgreSQL sẽ tự động <strong>ROLLBACK</strong> giao dịch đang dang dở và giải phóng toàn bộ khóa (locks) cùng Snapshot.</p>
+</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">Nguyên tắc an toàn trên Production</p>
+<ul>
+<li><strong>Không chạy terminate hàng loạt:</strong> Tránh dùng lệnh <code>terminate</code> trên toàn bộ bảng mà không lọc điều kiện thời gian (<code>transaction_duration &gt; interval '5 minutes'</code>) và loại trừ chính session quản trị của bạn.</li>
+<li><strong>Hệ quả phía ứng dụng:</strong> Khi backend bị terminate, ứng dụng client sẽ nhận lỗi kết nối (ví dụ <code>PSQLException: FATAL: terminating connection</code>). Đảm bảo ứng dụng có cơ chế retry an toàn hoặc xử lý ngoại lệ phù hợp.</li>
+</ul>
+</div>
+<hr />
+<h2 id="5-phong-ngua-tai-postgresql-amazon-aurora">5. Phòng ngừa tại PostgreSQL &amp; Amazon Aurora<a class="headerlink" href="#5-phong-ngua-tai-postgresql-amazon-aurora" title="Permanent link">&para;</a></h2>
+<p>Thiết lập "dây đai an toàn" trực tiếp trên database để tự động tiêu diệt các session bị bỏ quên.</p>
+<h3 id="51-cau-hinh-idle_in_transaction_session_timeout">5.1. Cấu hình <code>idle_in_transaction_session_timeout</code><a class="headerlink" href="#51-cau-hinh-idle_in_transaction_session_timeout" title="Permanent link">&para;</a></h3>
+<p>Tham số này quy định thời gian tối đa một session được phép dừng chờ sau khi đã mở transaction. Khi vượt ngưỡng, PostgreSQL sẽ chủ động ngắt kết nối.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Cấu hình cấp Database</label><label for="__tabbed_2_2">Cấu hình cấp User/Role (Khuyên dùng)</label><label for="__tabbed_2_3">Kiểm tra hiệu lực</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">-- Áp dụng cho toàn bộ kết nối vào database chỉ định</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">app_production</span><span class="w"> </span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">SET</span><span class="w"> </span><span class="n">idle_in_transaction_session_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'60s'</span><span class="p">;</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">-- Áp dụng riêng cho role của ứng dụng (tránh ảnh hưởng đến migration hoặc dba)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">ROLE</span><span class="w"> </span><span class="n">app_user</span><span class="w"> </span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">SET</span><span class="w"> </span><span class="n">idle_in_transaction_session_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'60s'</span><span class="p">;</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">setting</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="k">source</span><span class="w"> </span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">FROM</span><span class="w"> </span><span class="n">pg_settings</span><span class="w"> </span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle_in_transaction_session_timeout'</span><span class="p">;</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="52-so-sanh-cac-bo-timeout-cot-loi">5.2. So sánh các bộ Timeout cốt lõi<a class="headerlink" href="#52-so-sanh-cac-bo-timeout-cot-loi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tham số</th>
+<th style="text-align: left;">Mục đích bảo vệ</th>
+<th style="text-align: left;">Hành vi khi kích hoạt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>idle_in_transaction_session_timeout</code></strong></td>
+<td style="text-align: left;">Đóng session treo bên trong transaction</td>
+<td style="text-align: left;">Ngắt kết nối backend, rollback transaction</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>statement_timeout</code></strong></td>
+<td style="text-align: left;">Giới hạn thời gian thực thi của một lệnh SQL đơn lẻ</td>
+<td style="text-align: left;">Hủy câu lệnh SQL hiện tại, transaction chuyển sang <code>aborted</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>lock_timeout</code></strong></td>
+<td style="text-align: left;">Giới hạn thời gian chờ xin cấp khóa</td>
+<td style="text-align: left;">Hủy câu lệnh đang chờ khóa, tránh xếp hàng chờ dài</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>idle_session_timeout</code></strong></td>
+<td style="text-align: left;">Đóng session rảnh rỗi bên ngoài transaction</td>
+<td style="text-align: left;">Đóng kết nối TCP rác không dùng đến</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-luu-y-rieng-voi-amazon-aurora-postgresql">5.3. Lưu ý riêng với Amazon Aurora PostgreSQL<a class="headerlink" href="#53-luu-y-rieng-voi-amazon-aurora-postgresql" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Parameter Groups:</strong> Trong Aurora, cấu hình thông qua <strong>DB Cluster Parameter Group</strong> (áp dụng toàn cluster) hoặc <strong>DB Parameter Group</strong> (áp dụng từng instance).</li>
+<li><strong>Dynamic Parameter:</strong> <code>idle_in_transaction_session_timeout</code> là tham số <strong>dynamic</strong>, có hiệu lực ngay mà không yêu cầu reboot cluster.</li>
+<li><strong>Aurora Serverless / Auto-scaling:</strong> Đặt timeout hợp lý giúp giải phóng kết nối nhanh chóng, tránh kích hoạt mở rộng dung lượng (scale-up) không cần thiết do kết nối ảo.</li>
+</ol>
+<hr />
+<h2 id="6-khac-phuc-triet-e-trong-spring-boot">6. Khắc phục triệt để trong Spring Boot<a class="headerlink" href="#6-khac-phuc-triet-e-trong-spring-boot" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Nguyên tắc vàng</p>
+<p><strong>Tuyệt đối không giữ Transaction Database trong lúc chờ công việc không thuộc Database.</strong>
+Các tác vụ như: gọi HTTP API (Rest/Feign/WebClient), upload S3, gửi mail, hoặc xử lý file lớn <strong>bắt buộc phải nằm ngoài</strong> <code>@Transactional</code>.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Anti-Pattern (Sai lầm phổ biến)</label><label for="__tabbed_3_2">Clean Architecture (Giải pháp chuẩn)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-java highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nd">@Service</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nd">@RequiredArgsConstructor</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OrderProcessingService</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OrderRepository</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">;</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PaymentGatewayClient</span><span class="w"> </span><span class="n">paymentGatewayClient</span><span class="p">;</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nd">@Transactional</span><span class="w"> </span><span class="c1">// ⚠️ NGUY HIỂM: Transaction bao trùm toàn bộ</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">processOrder</span><span class="p">(</span><span class="n">Long</span><span class="w"> </span><span class="n">orderId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">        </span><span class="n">Order</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">orderId</span><span class="p">).</span><span class="na">orElseThrow</span><span class="p">();</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">        </span><span class="n">order</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="s">"PROCESSING"</span><span class="p">);</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="n">orderRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">order</span><span class="p">);</span><span class="w"> </span><span class="c1">// Lệnh SQL đầu tiên chạy xong</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">        </span><span class="c1">// BẪY: Cuộc gọi HTTP có thể mất từ 3s - 30s.</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">        </span><span class="c1">// Trong suốt thời gian này, PostgreSQL rơi vào IDLE IN TRANSACTION!</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="n">PaymentResponse</span><span class="w"> </span><span class="n">payment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paymentGatewayClient</span><span class="p">.</span><span class="na">charge</span><span class="p">(</span><span class="n">order</span><span class="p">.</span><span class="na">getAmount</span><span class="p">());</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">        </span><span class="n">order</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">payment</span><span class="p">.</span><span class="na">isSuccess</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"PAID"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"FAILED"</span><span class="p">);</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">        </span><span class="n">orderRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">order</span><span class="p">);</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Tách luồng xử lý thành 3 pha độc lập: <strong>Read (DB) -&gt; Remote Call (I/O) -&gt; Write (DB)</strong>:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@Service</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nd">@RequiredArgsConstructor</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OrderProcessingFacade</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OrderReadService</span><span class="w"> </span><span class="n">orderReadService</span><span class="p">;</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">PaymentGatewayClient</span><span class="w"> </span><span class="n">paymentGatewayClient</span><span class="p">;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OrderWriteService</span><span class="w"> </span><span class="n">orderWriteService</span><span class="p">;</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="c1">// Method điều phối KHÔNG mang annotation @Transactional</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">processOrder</span><span class="p">(</span><span class="n">Long</span><span class="w"> </span><span class="n">orderId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">        </span><span class="c1">// 1. Pha đọc: Transaction mở và commit ngay lập tức</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">        </span><span class="n">OrderSnapshot</span><span class="w"> </span><span class="n">snapshot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orderReadService</span><span class="p">.</span><span class="na">getOrderSnapshot</span><span class="p">(</span><span class="n">orderId</span><span class="p">);</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">        </span><span class="c1">// 2. Pha External Call: Chạy bên ngoài transaction DB hoàn toàn</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">        </span><span class="n">PaymentResponse</span><span class="w"> </span><span class="n">payment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paymentGatewayClient</span><span class="p">.</span><span class="na">charge</span><span class="p">(</span><span class="n">snapshot</span><span class="p">.</span><span class="na">amount</span><span class="p">());</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">        </span><span class="c1">// 3. Pha ghi: Mở transaction mới, cập nhật và commit ngay</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">        </span><span class="n">orderWriteService</span><span class="p">.</span><span class="na">updateOrderStatus</span><span class="p">(</span><span class="n">orderId</span><span class="p">,</span><span class="w"> </span><span class="n">payment</span><span class="p">.</span><span class="na">isSuccess</span><span class="p">());</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Chi tiết các Service thành phần:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@Service</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nd">@RequiredArgsConstructor</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OrderReadService</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OrderRepository</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nd">@Transactional</span><span class="p">(</span><span class="n">readOnly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">OrderSnapshot</span><span class="w"> </span><span class="nf">getOrderSnapshot</span><span class="p">(</span><span class="n">Long</span><span class="w"> </span><span class="n">orderId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">orderId</span><span class="p">)</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">            </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">OrderSnapshot</span><span class="p">::</span><span class="n">from</span><span class="p">)</span><span class="w"> </span><span class="c1">// Chuyển sang DTO bất biến</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">            </span><span class="p">.</span><span class="na">orElseThrow</span><span class="p">();</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="p">}</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="nd">@Service</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="nd">@RequiredArgsConstructor</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OrderWriteService</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OrderRepository</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">;</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="w">    </span><span class="nd">@Transactional</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">updateOrderStatus</span><span class="p">(</span><span class="n">Long</span><span class="w"> </span><span class="n">orderId</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="w">        </span><span class="n">Order</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orderRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">orderId</span><span class="p">).</span><span class="na">orElseThrow</span><span class="p">();</span>
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="w">        </span><span class="n">order</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">success</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"PAID"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"FAILED"</span><span class="p">);</span>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="p">}</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="61-khong-truyen-jpa-entity-ra-ngoai-transaction">6.1. Không truyền JPA Entity ra ngoài Transaction<a class="headerlink" href="#61-khong-truyen-jpa-entity-ra-ngoai-transaction" title="Permanent link">&para;</a></h3>
+<p>Luôn chuyển đổi sang <strong>Java Record / DTO</strong> trước khi rời khỏi ranh giới transaction:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">record</span> <span class="nc">OrderSnapshot</span><span class="p">(</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">Long</span><span class="w"> </span><span class="n">orderId</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">BigDecimal</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">customerEmail</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">OrderSnapshot</span><span class="w"> </span><span class="nf">from</span><span class="p">(</span><span class="n">Order</span><span class="w"> </span><span class="n">entity</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OrderSnapshot</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getId</span><span class="p">(),</span><span class="w"> </span><span class="n">entity</span><span class="p">.</span><span class="na">getAmount</span><span class="p">(),</span><span class="w"> </span><span class="n">entity</span><span class="p">.</span><span class="na">getEmail</span><span class="p">());</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><strong>Lợi ích:</strong> Ngăn chặn hoàn toàn lỗi <code>LazyInitializationException</code> và tránh việc vô tình kích hoạt các câu truy vấn ngầm ngoài ý muốn (N+1 query problem).</li>
+</ul>
+<h3 id="62-canh-bao-bay-self-invocation-trong-spring-proxy">6.2. Cảnh báo bẫy Self-Invocation trong Spring Proxy<a class="headerlink" href="#62-canh-bao-bay-self-invocation-trong-spring-proxy" title="Permanent link">&para;</a></h3>
+<p>Spring quản lý giao dịch bằng cơ chế AOP Proxy. Khi một method gọi một method khác <code>@Transactional</code> <strong>trong cùng một Class</strong>:
+* Lời gọi <strong>không đi qua Proxy</strong>.
+* Annotation <code>@Transactional</code> ở method được gọi sẽ <strong>bị bỏ qua hoàn toàn</strong>.
+* <strong>Giải pháp:</strong> Luôn tách các method transactional sang một Spring Bean khác như cấu trúc Facade ở trên.</p>
+<hr />
+<h2 id="7-cau-hinh-connection-pool-hikaricp">7. Cấu hình Connection Pool (HikariCP)<a class="headerlink" href="#7-cau-hinh-connection-pool-hikaricp" title="Permanent link">&para;</a></h2>
+<h3 id="71-cau-hinh-mau-trong-applicationyml">7.1. Cấu hình mẫu trong <code>application.yml</code><a class="headerlink" href="#71-cau-hinh-mau-trong-applicationyml" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">spring</span><span class="p">:</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">hikari</span><span class="p">:</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">      </span><span class="nt">pool-name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AppHikariCP</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">      </span><span class="nt">maximum-pool-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="nt">minimum-idle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">      </span><span class="nt">connection-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30000</span><span class="w">       </span><span class="c1"># 30 giây: Hết thời gian chờ mượn connection</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">      </span><span class="nt">max-lifetime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800000</span><span class="w">            </span><span class="c1"># 30 phút: Vòng đời tối đa của 1 connection</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">      </span><span class="nt">idle-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600000</span><span class="w">             </span><span class="c1"># 10 phút: Thu hồi connection rảnh rỗi</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">      </span><span class="nt">leak-detection-threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60000</span><span class="w">  </span><span class="c1"># 60 giây: Cảnh báo connection bị giữ quá lâu</span>
+</span></code></pre></div>
+<h3 id="72-phan-tich-chuc-nang-cac-tham-so-hikaricp">7.2. Phân tích chức năng các tham số HikariCP<a class="headerlink" href="#72-phan-tich-chuc-nang-cac-tham-so-hikaricp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tham số</th>
+<th style="text-align: left;">Vai trò</th>
+<th style="text-align: left;">Có giải quyết được <code>Idle in Transaction</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>maximum-pool-size</code></td>
+<td style="text-align: left;">Giới hạn số kết nối vật lý tối đa của pool</td>
+<td style="text-align: left;"><strong>Không</strong>; tăng size chỉ trì hoãn sự cố, làm DB chịu tải nặng hơn.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>connection-timeout</code></td>
+<td style="text-align: left;">Thời gian tối đa ứng dụng chờ mượn kết nối</td>
+<td style="text-align: left;"><strong>Không</strong>; chỉ quăng lỗi khi pool đã bị cạn kiệt.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>idle-timeout</code></td>
+<td style="text-align: left;">Đóng bớt kết nối rảnh rỗi khi vượt <code>minimumIdle</code></td>
+<td style="text-align: left;"><strong>Không</strong>; chỉ áp dụng cho kết nối <code>idle</code>, không áp dụng cho kết nối đang bận.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>leak-detection-threshold</code></td>
+<td style="text-align: left;">In stack trace cảnh báo kết nối bị giữ quá lâu</td>
+<td style="text-align: left;"><strong>Hỗ trợ điều tra</strong>: Giúp định vị chính xác dòng code Java mượn connection mà quên trả.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Lưu ý về Leak Detection</p>
+<p><code>leak-detection-threshold</code> chỉ ghi log cảnh báo kèm stack trace (vị trí lấy connection), <strong>không tự động đóng connection hay hủy transaction</strong>. Đây là công cụ hữu hiệu trong giai đoạn kiểm thử hoặc điều tra nguyên nhân.</p>
+</div>
+<hr />
+<h2 id="8-observability-canh-bao-som">8. Observability &amp; Cảnh báo sớm<a class="headerlink" href="#8-observability-canh-bao-som" title="Permanent link">&para;</a></h2>
+<h3 id="81-at-applicationname-tren-jdbc-url">8.1. Đặt <code>ApplicationName</code> trên JDBC URL<a class="headerlink" href="#81-at-applicationname-tren-jdbc-url" title="Permanent link">&para;</a></h3>
+<p>Cấu hình tên định danh cho từng module giúp phân tách rõ ràng trên <code>pg_stat_activity</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>jdbc:postgresql://postgres-db:5432/app_db?ApplicationName=order-service-api
+</span></code></pre></div>
+<p>Khuyến nghị đặt tên theo mẫu: <code>[service-name]-[workload-type]</code> (ví dụ: <code>order-api</code>, <code>billing-worker</code>, <code>report-batch</code>).</p>
+<h3 id="82-canh-bao-som-voi-prometheus-cloudwatch">8.2. Cảnh báo sớm với Prometheus / CloudWatch<a class="headerlink" href="#82-canh-bao-som-voi-prometheus-cloudwatch" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Ngưỡng giám sát PostgreSQL:</strong>
+    Cảnh báo khi có session <code>state = 'idle in transaction'</code> kéo dài quá 60 giây:
+    <div class="language-sql highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="w"> </span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'idle in transaction'</span><span class="w"> </span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state_change</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nb">interval</span><span class="w"> </span><span class="s1">'60 seconds'</span><span class="p">;</span>
+</span></code></pre></div></li>
+<li><strong>Chỉ số HikariCP (Micrometer):</strong><ul>
+<li><code>hikaricp.connections.active</code>: Tăng tiệm cận <code>maximum-pool-size</code>.</li>
+<li><code>hikaricp.connections.pending</code>: Lớn hơn 0 liên tục (báo hiệu request đang bị dồn ứ chờ connection).</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="9-checklist-kiem-tra-truoc-khi-len-production">9. Checklist kiểm tra trước khi lên Production<a class="headerlink" href="#9-checklist-kiem-tra-truoc-khi-len-production" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] <strong>Không gọi HTTP/Third-party API</strong> bên trong method <code>@Transactional</code>.</li>
+<li>[ ] <strong>Không thực hiện tác vụ I/O chậm</strong> (ghi file, message queue, xử lý ảnh) trong transaction.</li>
+<li>[ ] <strong>Dữ liệu trả về ngoài transaction</strong> là DTO / Record bất biến (không trả JPA Entity).</li>
+<li>[ ] <strong>Đã kiểm tra Self-Invocation:</strong> Các ranh giới transaction được gọi thông qua Spring Bean Proxy.</li>
+<li>[ ] <strong>Cấu hình <code>ApplicationName</code></strong> trong JDBC connection string của mọi microservice.</li>
+<li>[ ] <strong>Thiết lập <code>idle_in_transaction_session_timeout</code></strong> trên PostgreSQL (khuyến nghị 30s - 60s).</li>
+<li>[ ] <strong>Bật HikariCP Metrics</strong> và theo dõi <code>hikaricp.connections.pending</code>.</li>
+<li>[ ] <strong>Có Runbook xử lý khẩn cấp</strong> (<code>pg_terminate_backend</code>) phân quyền cho đội ngũ On-call.</li>
+</ul>
+<hr />
+<h2 id="10-cac-hieu-lam-kinh-ien-common-pitfalls">10. Các hiểu lầm kinh điển (Common Pitfalls)<a class="headerlink" href="#10-cac-hieu-lam-kinh-ien-common-pitfalls" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Lầm tưởng</th>
+<th style="text-align: left;">Thực tế kỹ thuật</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><em>"Tăng <code>maximum-pool-size</code> sẽ hết lỗi cạn connection"</em></td>
+<td style="text-align: left;"><strong>Sai lầm</strong>. Nếu transaction bị treo 30 giây, mọi pool size dù là 20 hay 200 cũng sẽ bị lấp đầy sau vài chục request, đồng thời khiến CPU database quá tải.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><em>"Dùng <code>@Transactional(readOnly = true)</code> thì không lo bị bẫy"</em></td>
+<td style="text-align: left;"><strong>Sai lầm</strong>. <code>readOnly = true</code> chỉ tối ưu hóa flush mode của Hibernate; nó vẫn mở một transaction thật trên PostgreSQL và vẫn giữ Snapshot chặn <code>VACUUM</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><em>"Cấu hình <code>idle-timeout</code> của HikariCP sẽ tự ngắt connection treo"</em></td>
+<td style="text-align: left;"><strong>Sai lầm</strong>. HikariCP chỉ thu hồi connection không có ai dùng. Connection đang nằm trong <code>@Transactional</code> được xem là <code>Active</code>, HikariCP không được phép can thiệp.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><em>"Cứ thấy session idle là terminate"</em></td>
+<td style="text-align: left;"><strong>Sai lầm</strong>. Trạng thái <code>idle</code> bình thường là kết nối sẵn sàng trong pool của ứng dụng. Chỉ được xử lý các session <code>idle in transaction</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-tai-lieu-tham-khao-chinh-thuc">11. Tài liệu tham khảo chính thức<a class="headerlink" href="#11-tai-lieu-tham-khao-chinh-thuc" title="Permanent link">&para;</a></h2>
+<ul>
+<li>🐘 <a href="https://www.postgresql.org/docs/current/runtime-config-client.html">PostgreSQL: Runtime Configuration - Client Connection Defaults</a> — Chi tiết về <code>idle_in_transaction_session_timeout</code>.</li>
+<li>🐘 <a href="https://www.postgresql.org/docs/current/monitoring-stats.html">PostgreSQL: Monitoring Database Activity</a> — Hướng dẫn phân tích view <code>pg_stat_activity</code>.</li>
+<li>🍃 <a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative.html">Spring Framework: Declarative Transaction Management</a> — Cơ chế Proxy AOP và Transaction Boundaries.</li>
+<li>⚡ <a href="https://github.com/brettwooldridge/HikariCP">HikariCP: Configuration &amp; Best Practices</a> — Hướng dẫn tối ưu Connection Pool và Leak Detection.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Trở lại mục lục
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "\u0110\u00e3 sao ch\u00e9p", "clipboard.copy": "Sao ch\u00e9p v\u00e0o b\u1ed9 nh\u1edb t\u1ea1m", "search.result.more.one": "1 t\u1eeb kh\u00e1c trong trang", "search.result.more.other": "# t\u1eeb kh\u00e1c trong trang", "search.result.none": "Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i li\u1ec7u li\u00ean quan", "search.result.one": "1 t\u00e0i li\u1ec7u li\u00ean quan", "search.result.other": "# t\u00e0i li\u1ec7u li\u00ean quan", "search.result.placeholder": "Nh\u1eadp \u0111\u1ec3 b\u1eaft \u0111\u1ea7u t\u00ecm ki\u1ebfm", "search.result.term.missing": "Kh\u00f4ng", "select.version": "Ch\u1ecdn phi\u00ean b\u1ea3n"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
